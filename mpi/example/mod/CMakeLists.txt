@@ -214,9 +214,9 @@ install(TARGETS rk_mpi_avio_test RUNTIME DESTINATION "bin")
 #--------------------------
 # firefly_mpi_avs_test
 #--------------------------
-add_executable(firefly_mpi_avs_test ${FIREFLY_MPI_TEST_AVS_SRC} ${RK_MPI_TEST_COMMON_SRC})
-target_link_libraries(firefly_mpi_avs_test ${ROCKIT_DEP_COMMON_LIBS})
-install(TARGETS firefly_mpi_avs_test RUNTIME DESTINATION "bin")
+#add_executable(firefly_mpi_avs_test ${FIREFLY_MPI_TEST_AVS_SRC} ${RK_MPI_TEST_COMMON_SRC})
+#target_link_libraries(firefly_mpi_avs_test ${ROCKIT_DEP_COMMON_LIBS})
+#install(TARGETS firefly_mpi_avs_test RUNTIME DESTINATION "bin")
 
 #--------------------------
 # add 6x_rectlinear data
