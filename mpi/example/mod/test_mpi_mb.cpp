@@ -94,7 +94,7 @@ RK_S32 unit_test_mpi_mb(const TEST_MB_CTX_S *pstCtx) {
                     }
                 }
                 MB_POOL poolId = RK_MPI_MB_Handle2PoolId(mb);
-                if (poolId != i) {
+                if (poolId != static_cast<MB_POOL>(i)) {
                     s32Ret = RK_ERR_MB_BUSY;
                     RK_MPI_MB_ReleaseMB(mb);
                     RK_LOGE("get pool id fail");

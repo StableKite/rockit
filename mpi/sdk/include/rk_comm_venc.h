@@ -10,12 +10,6 @@
 #include "rk_comm_video.h"
 #include "rk_comm_rc.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif
-#endif /* End of #ifdef __cplusplus */
-
 /* invlalid channel ID */
 #define RK_ERR_VENC_INVALID_CHNID RK_DEF_ERR(RK_ID_VENC, RK_ERR_LEVEL_ERROR, RK_ERR_INVALID_CHNID)
 /* at lease one parameter is illagal ,eg, an illegal enumeration value  */
@@ -974,11 +968,6 @@ typedef struct rkVENC_FRAMELOST_S {
     RK_U32 u32EncFrmGaps;
 } VENC_FRAMELOST_S;
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif
-#endif /* End of #ifdef __cplusplus */
 
 #endif /* End of #ifndef  INCLUDE_RT_MPI_RK_COMM_VENC_H_ */
 

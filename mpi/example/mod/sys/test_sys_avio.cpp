@@ -71,7 +71,7 @@ RK_S32 test_video_stream(RK_S32 type) {
           vstream.bEndOfStream = RK_FALSE;
           vstream.u32Len       = 100;
           vstream.u64PTS       = 50;
-          MB_EXT_CONFIG_S extConfig = {0};
+          MB_EXT_CONFIG_S extConfig{};
           extConfig.pu8VirAddr = data;
           extConfig.u64Size    = 250;
           RK_MPI_SYS_CreateMB(&(vstream.pMbBlk), &extConfig);
@@ -89,7 +89,7 @@ RK_S32 test_video_stream(RK_S32 type) {
           vstream.bEndOfStream = RK_FALSE;
           vstream.u32Len       = 100;
           vstream.u64PTS       = 50;
-          MB_EXT_CONFIG_S extConfig = {0};
+          MB_EXT_CONFIG_S extConfig{};
           extConfig.pu8VirAddr = reinterpret_cast<RK_U8 *>(malloc(250));
           extConfig.u64Size    = 250;
           extConfig.pFreeCB    = test_video_stream_buffer_free;

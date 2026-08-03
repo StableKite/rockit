@@ -39,7 +39,7 @@ RK_S32 TEST_AO_Start(AUDIO_DEV AoDev, AIO_ATTR_S *pstAoAttr, RK_U32 u32ChnCnt, A
         return s32Ret;
     }
 
-    for (RK_S32 i = 0; i < u32ChnCnt; i++) {
+    for (RK_U32 i = 0; i < u32ChnCnt; i++) {
         s32Ret =  RK_MPI_AO_EnableChn(AoDev, i);
         if (s32Ret != RK_SUCCESS) {
             RK_LOGE("failed with 0x%x!", s32Ret);
@@ -60,7 +60,7 @@ RK_S32 TEST_AO_Start(AUDIO_DEV AoDev, AIO_ATTR_S *pstAoAttr, RK_U32 u32ChnCnt, A
 RK_S32 TEST_AO_Stop(AUDIO_DEV aoDevId, RK_U32 u32ChnCnt) {
     RK_S32 s32Ret = RK_SUCCESS;
 
-    for (RK_S32 i = 0; i < u32ChnCnt; i++) {
+    for (RK_U32 i = 0; i < u32ChnCnt; i++) {
         s32Ret = RK_MPI_AO_DisableReSmp(aoDevId, i);
         if (s32Ret != RK_SUCCESS) {
             RK_LOGE("failed with 0x%x!", s32Ret);

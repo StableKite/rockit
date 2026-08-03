@@ -87,23 +87,16 @@ URI_SCHEME_TYPE TEST_COMM_GetUriSchemeType(const char* uri) {
 RK_S32 TEST_COMM_OpenFileUris(const char *pCfgFileUri, char **pFileUris, RK_U32 u32UriCount) {
     FILE *fp = RK_NULL;
     RK_U32 u32Count = 0;
-    RK_U32 u32FileLen = 0;
-    RK_U32 u32Len = 0;
-    RK_S32 s32Ret = 0;
     char *pLine = RK_NULL;
     char *pBuffer = RK_NULL;
     size_t sLen = 0;
-    size_t sReadLen = 0;
+    ssize_t sReadLen = 0;
 
     if ((fp = fopen(pCfgFileUri, "r")) == RK_NULL) {
         RK_LOGE("Error! opening file %s error is %s", pCfgFileUri, strerror(errno));
         return RK_FAILURE;
     }
-    fseek(fp, 0L, SEEK_END);
-    u32FileLen = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    while (sReadLen = getline(&pLine, &sLen, fp) != -1) {
+    while ((sReadLen = getline(&pLine, &sLen, fp)) != -1) {
         RK_S32 len = strlen(pLine) + 1;
         pBuffer = reinterpret_cast<char *>(malloc(len));
         snprintf(pBuffer, len, "%s", pLine);
@@ -271,7 +264,7 @@ void TEST_COMM_MkDirs(const char *muldir, RK_S32 mode) {
     RK_S32 i, len;
     char str[512];
 
-    strncpy(str, muldir, 512);
+    snprintf(str, sizeof(str), "%s", muldir);
     len = strlen(str);
     for (i = 0; i < len; i++) {
         if (str[i] == '/') {
@@ -293,7 +286,6 @@ RK_S32 TEST_COMM_CheckFileSizeInRange(const char *pFilePath,
                                                           RK_S32 minSize,
                                                           RK_S32 maxSize) {
     struct stat st;
-    FILE *fp;
 
     if (access(pFilePath, 0)) {
         RK_LOGE("can't find file %s!", pFilePath);

@@ -27,8 +27,8 @@ typedef enum rkIVS_MODE_E {
 } IVS_MODE_E;
 
 typedef struct rkIVS_AREA_S {
-    RK_U32 u32PointNum;                               /* 点个数 */
-    POINT_S points[IVS_MAX_AREA_POINT_NUM]; /* 围成区域的所有点坐标 */
+    RK_U32 u32PointNum;                               /* количество точек */
+    POINT_S points[IVS_MAX_AREA_POINT_NUM]; /* координаты всех точек, образующих область */
 } IVS_AREA_S;
 
 typedef struct rkIVS_AREAS_S {
@@ -71,7 +71,7 @@ typedef struct rkIVS_MD_ATTR_S {
 } IVS_MD_ATTR_S;
 
 typedef struct rkIVS_MD_INFO_S {
-    RK_U32 frameId;          /* 所在帧序号 */
+    RK_U32 frameId;          /* номер содержащего кадра */
     RK_U32 u32RectNum;
     RECT_S stRect[4096];
     RK_CHAR *pData;
@@ -81,7 +81,7 @@ typedef struct rkIVS_MD_INFO_S {
 } IVS_MD_INFO_S;
 
 typedef struct rkIVS_OD_INFO_S {
-    RK_U32 frameId;          /* 所在帧序号 */
+    RK_U32 frameId;          /* номер содержащего кадра */
     RK_U32 u32Flag;
     RK_U32 u32PixSum;
 } IVS_OD_INFO_S;

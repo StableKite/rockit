@@ -119,7 +119,7 @@ void test_adec_destroy_chn_attr(ADEC_CHN_ATTR_S **ppstChnAttr) {
     *ppstChnAttr = RK_NULL;
 }
 
-RK_S32 test_adec_create_channel(TEST_SYS_CTX_S *pstCtx, RK_S32 s32ChnId) {
+RK_S32 test_adec_create_channel(TEST_SYS_CTX_S *, RK_S32 s32ChnId) {
     RK_S32 s32Ret  = RK_SUCCESS;
     ADEC_CHN AdChn = (ADEC_CHN)s32ChnId;
     ADEC_CHN_ATTR_S *pstChnAttr = test_adec_create_chn_attr();
@@ -135,7 +135,6 @@ RK_S32 test_adec_create_channel(TEST_SYS_CTX_S *pstCtx, RK_S32 s32ChnId) {
 
 RK_S32 test_adec_destroy_channel(TEST_SYS_CTX_S *pstCtx, RK_S32 s32ChnId) {
     RK_S32 s32Ret = RK_SUCCESS;
-    RK_S32 s32DevId = pstCtx->s32DevId;
     ADEC_CHN AdChn  = (ADEC_CHN)s32ChnId;
 #ifdef HAVE_API_MPI_ADEC
     s32Ret = RK_MPI_ADEC_DestroyChn(AdChn);
@@ -175,15 +174,14 @@ RK_S32 test_ao_disable_channel(TEST_SYS_CTX_S *pstCtx, RK_S32 s32ChnId) {
 
 RK_S32 test_bind_adec_ao(TEST_SYS_CTX_S *pstCtx, RK_S32 s32SrcChnId, RK_S32 s32DstChnId) {
     RK_S32 s32Ret = RK_SUCCESS;
-    RK_S32 s32DevId = pstCtx->s32DevId;
     MPP_CHN_S stSrcChn, stDstChn;
 
     stSrcChn.enModId = RK_ID_ADEC;
-    stSrcChn.s32DevId = s32DevId;
+    stSrcChn.s32DevId = pstCtx->s32DevId;
     stSrcChn.s32ChnId = s32SrcChnId;
 
     stDstChn.enModId = RK_ID_AO;
-    stDstChn.s32DevId = s32DevId;
+    stDstChn.s32DevId = pstCtx->s32DevId;
     stDstChn.s32ChnId = s32DstChnId;
     s32Ret = RK_MPI_SYS_Bind(&stSrcChn, &stDstChn);
 
@@ -192,15 +190,14 @@ RK_S32 test_bind_adec_ao(TEST_SYS_CTX_S *pstCtx, RK_S32 s32SrcChnId, RK_S32 s32D
 
 RK_S32 test_unbind_adec_ao(TEST_SYS_CTX_S *pstCtx, RK_S32 s32SrcChnId, RK_S32 s32DstChnId) {
     RK_S32 s32Ret = RK_SUCCESS;
-    RK_S32 s32DevId = pstCtx->s32DevId;
 
     MPP_CHN_S stSrcChn, stDstChn;
     stSrcChn.enModId = RK_ID_ADEC;
-    stSrcChn.s32DevId = s32DevId;
+    stSrcChn.s32DevId = pstCtx->s32DevId;
     stSrcChn.s32ChnId = s32SrcChnId;
 
     stDstChn.enModId = RK_ID_AO;
-    stDstChn.s32DevId = s32DevId;
+    stDstChn.s32DevId = pstCtx->s32DevId;
     stDstChn.s32ChnId = s32DstChnId;
     s32Ret = RK_MPI_SYS_UnBind(&stSrcChn, &stDstChn);
 
@@ -219,7 +216,7 @@ RK_S32 test_mpi_sys_get_bind_by_src(TEST_SYS_CTX_S *pstCtx, RK_S32 s32ChnId) {
     stSrcChn.s32ChnId = s32ChnId;
     s32Ret = RK_MPI_SYS_GetBindbySrc(&stSrcChn, &pstBindDest);
     if (s32Ret == RK_SUCCESS) {
-        for (RK_S32 i=0; i < pstBindDest.u32Num; i++) {
+        for (RK_U32 i = 0; i < pstBindDest.u32Num; i++) {
             MPP_CHN_S *pstDstChn = &pstBindDest.astMppChn[i];
             RK_LOGD("get dst channel(modId=%d, devId=%d, chnId=%d)",
                 pstDstChn->enModId, pstDstChn->s32DevId, pstDstChn->s32ChnId);
@@ -320,12 +317,12 @@ RK_S32 unit_test_mpi_sys_dumpsys(TEST_SYS_CTX_S *pstCtx) {
     return s32Ret;
 }
 
-RK_S32 unit_test_mpi_sys_force_lost_frame(TEST_SYS_CTX_S *pstCtx) {
+RK_S32 unit_test_mpi_sys_force_lost_frame(TEST_SYS_CTX_S *) {
     RK_S32 s32Ret = RK_SUCCESS;
     return s32Ret;
 }
 
-RK_S32 unit_test_mpi_sys_mmz_release(TEST_SYS_CTX_S *pstCtx) {
+RK_S32 unit_test_mpi_sys_mmz_release(TEST_SYS_CTX_S *) {
     RK_S32 s32Ret = RK_SUCCESS;
     return s32Ret;
 }

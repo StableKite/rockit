@@ -65,7 +65,7 @@ typedef struct _rkTestMMZCtx {
     } \
 } while (0);
 
-RK_S32 unit_test_mpi_mmz(const TEST_MMZ_CTX_S *pCtx) {
+RK_S32 unit_test_mpi_mmz(const TEST_MMZ_CTX_S *) {
     MB_BLK mb;
     RK_S32 len = 1048576;
     RK_S32 ret = RK_SUCCESS;

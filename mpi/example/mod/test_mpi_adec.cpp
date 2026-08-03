@@ -89,7 +89,6 @@ static RK_U32 test_find_audio_codec_id(TEST_ADEC_CTX_S *params) {
 }
 
 RK_S32 test_init_mpi_adec(TEST_ADEC_CTX_S *params) {
-    RK_S32 i = 0;
     RK_S32 s32ret = 0;
     ADEC_CHN_ATTR_S stAdecAttr;
     ADEC_CHN AdChn = (ADEC_CHN)(params->s32ChnIndex);
@@ -129,14 +128,12 @@ static void *send_stream_thread(void *arg) {
     RK_U8 *srcData = RK_NULL;
     RK_S32 srcSize = 0;
     FILE  *file = RK_NULL;
-    RK_S32 err = 0;
     RK_S32 pktEos = 0;
     AUDIO_STREAM_S stAudioStream;
     RK_BOOL bBlock = params->bBlock;
     ADEC_CHN AdChn = (ADEC_CHN)(params->s32ChnIndex);
     RK_U64 timeStamp = 0;
     RK_S32 count = 0;
-    RK_S64 dataOffset = 0;
 
     file = fopen(params->srcFilePath, "rb");
     if (file == RK_NULL) {
@@ -163,7 +160,7 @@ static void *send_stream_thread(void *arg) {
             stAudioStream.u64TimeStamp = timeStamp;
             stAudioStream.u32Seq = ++count;
             stAudioStream.bBypassMbBlk = RK_TRUE;
-            MB_EXT_CONFIG_S extConfig = {0};
+            MB_EXT_CONFIG_S extConfig{};
             extConfig.pFreeCB = adec_data_free;
             extConfig.pOpaque = srcData;
             extConfig.pu8VirAddr = srcData;
@@ -201,8 +198,6 @@ static void *receive_data_thread(void *arg) {
     RK_BOOL bBlock = params->bBlock;
     ADEC_CHN AdChn = (ADEC_CHN)(params->s32ChnIndex);
     RK_S32 eos = 0;
-    RK_S32 count = 0;
-
     if (params->dstFilePath) {
         file = fopen(params->dstFilePath, "wb+");
         if (file == RK_NULL) {
@@ -226,7 +221,6 @@ static void *receive_data_thread(void *arg) {
                 }
                 //  release frame
                 RK_MPI_ADEC_ReleaseFrame(AdChn, pstFrmInfo);
-                count++;
             }
         } else {
             RK_LOGE("fail to get adec frame.");

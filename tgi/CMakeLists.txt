@@ -1,34 +1,20 @@
-cmake_minimum_required( VERSION 2.8.8 )
-project (rockit)
+target_include_directories(rockit_shared INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sdk/include>
+)
+target_include_directories(rockit_static INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sdk/include>
+)
 
-include(sdk/RockitConfig.cmake)
-if(ARCH64)
-  set(ROCKIT_FILE_CONFIGS ${ROCKIT_FILE_CONFIGS}/arch64)
-endif()
-
-option(USE_STASTERIA  "enable stasteria" OFF)
-option(USE_ROCKX  "enable rockx" ON)
-if (${USE_STASTERIA})
-    set(AI_CAMERA_CONF ${ROCKIT_FILE_CONFIGS}/aicamera_stasteria.json)
+set(_rockit_tgi_config_dir "${CMAKE_CURRENT_SOURCE_DIR}/sdk/conf")
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(_rockit_ai_camera_config "${_rockit_tgi_config_dir}/arch64/aicamera_uvc_zoom.json")
 else()
- if(ARCH64)
-    set(AI_CAMERA_CONF ${ROCKIT_FILE_CONFIGS}/aicamera_uvc_zoom.json)
- else()
-    if(${USE_ROCKX})
-       set(AI_CAMERA_CONF ${ROCKIT_FILE_CONFIGS}/aicamera_rockx.json)
-    else()
-       set(AI_CAMERA_CONF ${ROCKIT_FILE_CONFIGS}/aicamera_uvc_zoom.json)
-    endif()
- endif()
+    set(_rockit_ai_camera_config "${_rockit_tgi_config_dir}/aicamera_uvc_zoom.json")
 endif()
 
-install(FILES ${AI_CAMERA_CONF} DESTINATION ../../oem/usr/share/aiserver/  RENAME  "aicamera.json")
-install(FILES ${ROCKIT_FILE_CONFIGS}/aisingle.json DESTINATION ../../oem/usr/share/aiserver/)
-if(${USE_ROCKIT_MPI})
-    message("use MPI rockit, don't install tgi rockit")
-else()
-    install(FILES ${ROCKIT_FILE_LIBS} DESTINATION "lib")
-endif()
-install(DIRECTORY ${ROCKIT_FILE_HEADERS}/ DESTINATION "include")
-
-# install(FILES ${ROCKIT_FILE_CONFIGS} DESTINATION "lib")
+install(FILES "${_rockit_ai_camera_config}"
+    DESTINATION "share/aiserver"
+    RENAME aicamera.json)
+install(FILES "${_rockit_tgi_config_dir}/aisingle.json"
+    DESTINATION "share/aiserver")
+install(DIRECTORY sdk/include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")

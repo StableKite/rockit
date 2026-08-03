@@ -1,23 +1,26 @@
-cmake_minimum_required( VERSION 2.8.8 )
-add_definitions(-fno-rtti)
+add_compile_definitions(HAVE_API_MPI_AO HAVE_API_MPI_ADEC)
 
-add_compile_options(-std=c++11)
-add_definitions(-std=c++11 -Wno-attributes -Wno-deprecated-declarations -DANDROID_STL=c++_shared)
+add_library(rt_test_comm STATIC)
+target_sources(rt_test_comm PRIVATE
+    common/test_mod_vpss.cpp
+    common/test_comm_argparse.cpp
+    common/test_comm_utils.cpp
+    common/test_comm_bmp.cpp
+    common/test_comm_imgproc.cpp
+    common/test_comm_sys.cpp
+    common/test_comm_vdec.cpp
+    common/test_comm_vo.cpp
+    common/test_comm_ao.cpp
+    common/tmedia/test_comm_tmd.cpp
+)
+target_include_directories(rt_test_comm PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/common"
+    "${CMAKE_CURRENT_SOURCE_DIR}/common/tmedia"
+)
+target_compile_options(rt_test_comm PRIVATE -fno-rtti)
+target_compile_definitions(rt_test_comm PRIVATE ANDROID_STL=c++_shared)
+rockit_enable_example_warnings(rt_test_comm)
+target_link_libraries(rt_test_comm PUBLIC Rockit::rockit Threads::Threads)
 
-include_directories(include)
-
-set(RT_TEST_COMM_STATIC   rt_test_comm)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(ROCKIT_DEP_COMMON_LIBS
-        ${ROCKIT_DEP_COMMON_LIBS}
-        -lpthread
-        ${RT_TEST_COMM_STATIC}
-    )
-    message(STATUS "Build WITH linker libs for Linux")
-endif()
-
-add_subdirectory(common)
 add_subdirectory(mod)
-
-install(PROGRAMS ${ROCKIT_DUMPSYS_FILE} DESTINATION "bin")

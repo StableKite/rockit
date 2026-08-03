@@ -112,7 +112,7 @@ static AUDIO_BIT_WIDTH_E ai_find_bit_width(RK_S32 bit) {
 }
 
 RK_S32 test_ai_poll_event(RK_S32 timeoutMsec, RK_S32 fd) {
-    RK_S32 num_fds = 1;
+    constexpr RK_S32 num_fds = 1;
     struct pollfd pollFds[num_fds];
     RK_S32 ret = 0;
 
@@ -776,9 +776,8 @@ void* sendDataThread(void * ptr) {
     RK_S32 s32MilliSec = -1;
     RK_S32 bufferLen = 1024;
     RK_S32 readLen = bufferLen;
-    RK_S32 frames = 0;
     AUDIO_FRAME_S sendFrame;
-    RK_U8  *srcData = RK_NULL;
+    RK_U8 *srcData = RK_NULL;
     RK_U8 *tmpData = RK_NULL;
     RK_S32 size = 0;
     RK_U64 timeStamp = 0;
@@ -871,9 +870,14 @@ void* getDataThread(void * ptr) {
     RK_S32 result = 0;
     RK_S32 s32MilliSec = -1;
     AUDIO_FRAME_S getFrame;
-    FILE *fp_aed, *fp_bcd, *fp_buz, *fp_gbs;
-    RK_U8  *srcData = RK_NULL;
-    RK_S16 *buf_aed, *buf_bcd, *buf_buz, *buf_gbs;
+    FILE *fp_aed = RK_NULL;
+    FILE *fp_bcd = RK_NULL;
+    FILE *fp_buz = RK_NULL;
+    FILE *fp_gbs = RK_NULL;
+    RK_S16 *buf_aed = RK_NULL;
+    RK_S16 *buf_bcd = RK_NULL;
+    RK_S16 *buf_buz = RK_NULL;
+    RK_S16 *buf_gbs = RK_NULL;
     RK_S32 s32AiAlgoFrames = 0;
     RK_U32 aed_count = 0, aed_flag = 0;
     RK_U32 bcd_count = 0, bcd_flag = 0;

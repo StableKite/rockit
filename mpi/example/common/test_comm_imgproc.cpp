@@ -311,7 +311,7 @@ static void fill_MPP_FMT_ARGB1555(RK_U8 *p, RK_U32 R, RK_U32 G, RK_U32 B, RK_U32
     if (be) {
         *u16p = a1 | (r1 << 1) | (g1 << 6) | (b1 << 11);
     } else {
-        *u16p = (a1 << 15) + (r1 << 10) | (g1 << 5) | b1;
+        *u16p = (a1 << 15) | (r1 << 10) | (g1 << 5) | b1;
     }
 }
 
@@ -328,7 +328,7 @@ static void fill_MPP_FMT_ABGR1555(RK_U8 *p, RK_U32 R, RK_U32 G, RK_U32 B, RK_U32
     if (be) {
         *u16p = a1 | (b1 << 1) | (g1 << 6) | (r1 << 11);
     } else {
-        *u16p = (a1 << 15) + (b1 << 10) | (g1 << 5) | r1;
+        *u16p = (a1 << 15) | (b1 << 10) | (g1 << 5) | r1;
     }
 }
 
@@ -373,7 +373,7 @@ static void fill_MPP_FMT_BGRA4444(RK_U8 *p, RK_U32 R, RK_U32 G, RK_U32 B, RK_U32
     if (be) {
         *u16p = b1 | (g1 << 4) | (r1 << 8) | (a1 << 12);
     } else {
-        *u16p = (b1 << 12) + (g1 << 8) | (r1 << 4) | a1;
+        *u16p = (b1 << 12) | (g1 << 8) | (r1 << 4) | a1;
     }
 }
 
@@ -407,7 +407,7 @@ static void fill_MPP_FMT_BGRA5551(RK_U8 *p, RK_U32 R, RK_U32 G, RK_U32 B, RK_U32
     if (be) {
         *u16p = b1 | (g1 << 5) | (r1 << 10) | (a1 << 15);
     } else {
-        *u16p = (b1 << 11) + (g1 << 6) | (r1 << 1) | a1;
+        *u16p = (b1 << 11) | (g1 << 6) | (r1 << 1) | a1;
     }
 }
 

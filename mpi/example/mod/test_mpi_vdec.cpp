@@ -165,7 +165,7 @@ __FAILED:
 
 
 RK_S32 mpi_vdec_poll_event(RK_S32 timeoutMsec, RK_S32 fd) {
-    RK_S32 num_fds = 1;
+    constexpr RK_S32 num_fds = 1;
     struct pollfd pollFds[num_fds];
     RK_S32 ret = 0;
 
@@ -183,7 +183,7 @@ RK_S32 mpi_vdec_poll_event(RK_S32 timeoutMsec, RK_S32 fd) {
     return ret;
 }
 
-RK_S32 mpi_create_vdec(TEST_VDEC_CTX_S *ctx, RK_S32 s32Ch, VIDEO_MODE_E enMode) {
+RK_S32 mpi_create_vdec(TEST_VDEC_CTX_S *ctx, RK_S32, VIDEO_MODE_E enMode) {
     RK_S32 s32Ret = RK_SUCCESS;
     VDEC_CHN_ATTR_S stAttr;
     VDEC_CHN_PARAM_S stVdecParam;
@@ -368,7 +368,7 @@ void* mpi_get_pic(void *pArgs) {
         if (s32Ret >= 0) {
             s32FrameCount++;
             RK_LOGI("get chn %d frame %d", ctx->u32ChnIndex, s32FrameCount);
-            if ((sFrame.stVFrame.u32FrameFlag & FRAME_FLAG_SNAP_END) == FRAME_FLAG_SNAP_END) {
+            if ((sFrame.stVFrame.u32FrameFlag & FRAME_FLAG_SNAP_END) == static_cast<RK_U32>(FRAME_FLAG_SNAP_END)) {
                 RK_MPI_VDEC_ReleaseFrame(ctx->u32ChnIndex, &sFrame);
                 RK_LOGI("chn %d reach eos frame.", ctx->u32ChnIndex);
                 break;
@@ -405,11 +405,7 @@ static void* mpi_send_stream(void *pArgs) {
     FILE *fp = RK_NULL;
     MB_BLK buffer = RK_NULL;
     MB_EXT_CONFIG_S pstMbExtConfig;
-    VDEC_CHN_STATUS_S staus;
-    VDEC_CHN_ATTR_S stAttr;
-    VDEC_CHN_PARAM_S stVdecParam;
     VDEC_STREAM_S stStream;
-    RK_S32 s32PacketCount = 0;
     RK_S32 s32ReachEOS = 0;
 
     memset(&stStream, 0, sizeof(VDEC_STREAM_S));
@@ -431,7 +427,7 @@ static void* mpi_send_stream(void *pArgs) {
                 fseek(fp, 0, SEEK_SET);
                 RK_LOGI("ctx->s32LoopCount = %d",ctx->s32LoopCount);
                 if (ctx->u32ChnIndex) {
-                    for (int i = 0; i < ctx->u32ChNum; i++) {
+                    for (RK_U32 i = 0; i < ctx->u32ChNum; i++) {
                         VO_CHN_ATTR_S stChnAttr;
                         RK_MPI_VO_GetChnAttr(0, i, &stChnAttr);
                         if (ctx->s32LoopCount % 2)
@@ -471,9 +467,7 @@ __RETRY:
             usleep(1000llu);
             goto  __RETRY;
         } else {
-            s32PacketCount++;
             RK_MPI_MB_ReleaseMB(stStream.pMbBlk);
-            //RK_LOGI("send chn %d packet %d", ctx->u32ChnIndex, s32PacketCount);
         }
         if (s32ReachEOS) {
             RK_LOGI("chn %d input reach EOS", ctx->u32ChnIndex);
@@ -552,7 +546,7 @@ static RK_S32 create_vo(RK_U32 ChCnt) {
         return RK_FAILURE;
     }
 
-    for (int i = 0; i < ChCnt; i++) {
+    for (RK_U32 i = 0; i < ChCnt; i++) {
         stChnAttr.stRect.u32Width = stLayerAttr.stImageSize.u32Width / ChCnt;
         stChnAttr.stRect.u32Height = stLayerAttr.stImageSize.u32Height / ChCnt;
         stChnAttr.stRect.s32X = i * stChnAttr.stRect.u32Width / 2;
@@ -578,7 +572,6 @@ RK_S32 unit_test_mpi_vdec(TEST_VDEC_CTX_S *ctx) {
     RK_U32 u32Ch = 0;
     TEST_VDEC_CTX_S vdecCtx[VDEC_MAX_CHN_NUM];
     pthread_t vdecThread[VDEC_MAX_CHN_NUM];
-    pthread_t getPicThread[VDEC_MAX_CHN_NUM];
 
     for (u32Ch = 0; u32Ch < ctx->u32ChNum; u32Ch++) {
         if (ctx->u32ChNum > 1) {
@@ -605,7 +598,7 @@ RK_S32 unit_test_mpi_vdec(TEST_VDEC_CTX_S *ctx) {
         return -1;
     }
     // bind vi to vo
-    for (int i = 0; i < ctx->u32ChNum; i++) {
+    for (RK_U32 i = 0; i < ctx->u32ChNum; i++) {
         stSrcChn.enModId    = RK_ID_VDEC;
         stSrcChn.s32DevId   = 0;
         stSrcChn.s32ChnId   = i;
@@ -630,7 +623,6 @@ RK_S32 unit_test_mpi_vdec(TEST_VDEC_CTX_S *ctx) {
 
     for (u32Ch = 0; u32Ch < ctx->u32ChNum; u32Ch++) {
         pthread_join(vdecThread[u32Ch], RK_NULL);
-        pthread_join(getPicThread[u32Ch], RK_NULL);
 
         vdecCtx[u32Ch].threadExit = RK_TRUE;
         if (ctx->u32ChNum > 1) {

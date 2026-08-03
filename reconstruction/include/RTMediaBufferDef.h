@@ -1,0 +1,9 @@
+#pragma once
+
+typedef enum _RTMediaBufferType {
+    RT_MEDIA_BUFFER_UNKNOWN = 0,
+    RT_MEDIA_BUFFER_VIDEO_FRAME,
+    RT_MEDIA_BUFFER_VIDEO_PACKET,
+    RT_MEDIA_BUFFER_AUDIO_FRAME,
+    RT_MEDIA_BUFFER_AUDIO_PACKET,
+} RTMediaBufferType;

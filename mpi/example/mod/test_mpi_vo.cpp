@@ -15,6 +15,8 @@
  *
  */
 
+#include <cstddef>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -308,7 +310,7 @@ static void Sample_VO_GetDisplaySize(RK_S32 enIntfSync, RK_U32 *s32W, RK_U32 *s3
             *s32H = 4320;
             break;
         default:
-            for (RK_S32 i = 0; i < ARRAY_LENGTH(stVoTimings); i++) {
+            for (size_t i = 0; i < ARRAY_LENGTH(stVoTimings); i++) {
                 if (stVoTimings[i].enIntfSync == enIntfSync) {
                     *s32W = stVoTimings[i].u32Width;
                     *s32H = stVoTimings[i].u32Height;
@@ -485,7 +487,7 @@ static VO_INTF_TYPE_E Sample_get_IntfType(RK_U32  u32IntfType) {
 
 static void* vochn_test_thread_func(void *pArgs) {
     TEST_VO_CTX_S *ctx = reinterpret_cast<TEST_VO_CTX_S *>(pArgs);
-    RK_S32 i, j;
+    RK_U32 i;
 
     while (1) {
         if (ctx->u32ChnDismode == VO_CHANNEL_PLAY_PAUSE) {
@@ -568,8 +570,7 @@ static RK_S32 mpi_vo_init_sample(const TEST_VO_CTX_S *ctx, RK_S32 primRows , RK_
     VO_CHN_ATTR_S VoChnAttr[64];
     VO_BORDER_S border;
     RK_S32  i;
-    PIXEL_FORMAT_E video_format;
-    RK_U32 count = 0;
+    PIXEL_FORMAT_E video_format{};
     RK_U32 u32DispBufLen;
     RK_U32 s32Ret;
     RK_U32 u32DispWidth = ctx->u32DispWidth;
@@ -820,9 +821,6 @@ static RK_S32 mpi_vo_deinit_sample(const TEST_VO_CTX_S *ctx) {
 static RK_S32 open_config(TEST_VO_CTX_S *ctx) {
     FILE *fp = RK_NULL;
     RK_U32 u32Count = 0;
-    RK_U32 u32FileLen = 0;
-    RK_U32 u32Len = 0;
-    RK_S32 s32Ret = 0;
     char *line = RK_NULL;
     char *pBuffer = RK_NULL;
 
@@ -830,13 +828,9 @@ static RK_S32 open_config(TEST_VO_CTX_S *ctx) {
         RK_LOGE("Error! opening file");
         return RK_FAILURE;
     }
-    fseek(fp, 0L, SEEK_END);
-    u32FileLen = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
     size_t sLen = 0;
-    size_t read = 0;
-    while (read = getline(&line, &sLen, fp) != -1) {
+    ssize_t readLength = 0;
+    while ((readLength = getline(&line, &sLen, fp)) != -1) {
         pBuffer = reinterpret_cast<char *>(malloc(strlen(line)));
         RK_S32 len = strlen(line);
         snprintf(pBuffer, strlen(line), "%s", line);
@@ -990,7 +984,7 @@ static RK_S32 screen_init(TEST_VO_CTX_S *ctx, RK_U32 u32VoLayer, RK_U32 u32Index
     return RK_SUCCESS;
 }
 
-static RK_S32 screen_deinit(TEST_VO_CTX_S *ctx, RK_U32 u32VoLayer, RK_U32 u32Index, RK_U32 u32VoChn) {
+static RK_S32 screen_deinit(TEST_VO_CTX_S *, RK_U32 u32VoLayer, RK_U32 u32Index, RK_U32 u32VoChn) {
     RK_S32 s32Ret = RK_SUCCESS;
     MPP_CHN_S stVdecChn, stVoChn;
 
@@ -1026,7 +1020,7 @@ static RK_S32 screen_deinit(TEST_VO_CTX_S *ctx, RK_U32 u32VoLayer, RK_U32 u32Ind
 
 static RK_S32 wbc_process(TEST_VO_CTX_S *ctx) {
     RK_S32 s32Ret = RK_SUCCESS;
-    MPP_CHN_S stSrcChn, stDstChn;
+    [[maybe_unused]] MPP_CHN_S stSrcChn, stDstChn;
 
     s32Ret = creat_wbc(ctx, 0);
     if (s32Ret != RK_SUCCESS) {
@@ -1076,25 +1070,14 @@ static RK_S32 wbc_process(TEST_VO_CTX_S *ctx) {
 
 
 RK_S32 unit_mpi_voplay_test(TEST_VO_CTX_S *ctx) {
-    RK_U32  i, k;
+    RK_U32 i;
 
     RK_S32 s32Ret = RK_SUCCESS;
     RK_U32 u32MaxCh = 0;
-    RK_U32 u32step = 0;
-    RK_S32 u32VpssGrap = 0;
 
-    MPP_CHN_S stSrcChn, stDstChn;
-
-    TEST_VO_CTX_S mpiVdecCtx[VDEC_MAX_CHN_NUM];
-    TEST_VO_CTX_S mpiVencCtx[VENC_MAX_CHN_NUM];
-
-    pthread_t vdecSendThread[VDEC_MAX_CHN_NUM];
-    pthread_t vdecGetThread[VDEC_MAX_CHN_NUM];
+    [[maybe_unused]] MPP_CHN_S stSrcChn, stDstChn;
 
     pthread_t voThread;
-    RK_U32 u32VdecSendThreadNum = 0;
-    RK_U32 u32VdecGetThreadNum = 0;
-    RK_U32 u32Ch = 0;
 
     if (open_config(ctx) < 0) {
         RK_LOGE("parser cfg failed!");
@@ -1216,24 +1199,26 @@ static void Sample_VO_GetPictureData(VO_FRAME_INFO_S *pstFrameInfo, const char *
     if (pstFrameInfo->u32Width != pstFrameInfo->u32VirWidth) {
         u32Stride = pstFrameInfo->u32VirWidth * u32Bpp;
 
-        for (RK_S32 i = 0; i < pstFrameInfo->u32Height; i++)
+        for (RK_U32 i = 0; i < pstFrameInfo->u32Height; i++) {
             read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData) + u32Stride * i,
-                        pstFrameInfo->u32Width * u32Bpp);
+                 pstFrameInfo->u32Width * u32Bpp);
+        }
 
-            if (pstFrameInfo->enPixelFormat == RK_FMT_YUV420SP ||
+        if (pstFrameInfo->enPixelFormat == RK_FMT_YUV420SP ||
                 pstFrameInfo->enPixelFormat == RK_FMT_YUV420SP_VU) {
-                for (RK_S32 i = 0; i < pstFrameInfo->u32Height / 2; i++)
-                    read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData)
-                                + u32Stride * pstFrameInfo->u32VirHeight + i * u32Stride,
-                                pstFrameInfo->u32Width);
-                }
-            } else {
+            for (RK_U32 i = 0; i < pstFrameInfo->u32Height / 2; i++) {
+                read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData)
+                            + u32Stride * pstFrameInfo->u32VirHeight + i * u32Stride,
+                            pstFrameInfo->u32Width);
+            }
+        }
+    } else {
                 read(u32Fd, pstFrameInfo->pData, u32Size);
             }
             close(u32Fd);
 }
 
-static void filewrite(void *buf, uint32_t size, char *file) {
+[[maybe_unused]] static void filewrite(void *buf, uint32_t size, char *file) {
     int fd = open(file, O_WRONLY | O_CREAT);
 
     if (fd < 0) {
@@ -1250,8 +1235,8 @@ static void Sample_VO_DrawUI(VO_FRAME_INFO_S *pstFrameInfo, RK_S32 format, RK_S3
     RK_S8 *pData = reinterpret_cast<RK_S8 *>(pstFrameInfo->pData);
     RK_U32 u32Offset;
 
-    for (RK_S32 i = 0; i < pstFrameInfo->u32Height; i++) {
-        for (RK_S32 j = 0; j < pstFrameInfo->u32Width; j++) {
+    for (RK_U32 i = 0; i < pstFrameInfo->u32Height; i++) {
+        for (RK_U32 j = 0; j < pstFrameInfo->u32Width; j++) {
             u32Offset = i * pstFrameInfo->u32VirWidth + j;
             if (format == RK_FMT_BGRA5551) {
                 u32Offset = u32Offset * 2;
@@ -1292,10 +1277,10 @@ static void Sample_VO_DrawUI(VO_FRAME_INFO_S *pstFrameInfo, RK_S32 format, RK_S3
 static RK_S32 Sample_VO_MultiGFXLayer_Start(VO_LAYER VoLayer, RK_U32 u32Layers) {
     VO_VIDEO_LAYER_ATTR_S    stLayerAttr;
     VO_CHN_ATTR_S            stChnAttr;
-    VO_CHN_PARAM_S           stParam;
-    VO_BORDER_S              stBorder;
-    RK_U32                   u32Row, u32Column, i;
-    RK_U32                   u32WinWidth, u32WinHeight;
+    [[maybe_unused]] VO_CHN_PARAM_S stParam;
+    [[maybe_unused]] VO_BORDER_S stBorder;
+    RK_U32 i;
+    [[maybe_unused]] RK_U32 u32WinWidth, u32WinHeight;
     RK_S32                   s32Ret = RK_SUCCESS;
 
     s32Ret = RK_MPI_VO_GetLayerAttr(VoLayer, &stLayerAttr);
@@ -1339,13 +1324,13 @@ static RK_S32 Sample_VO_MultiWindowns_Start(TEST_VO_CTX_S *ctx) {
     VO_VIDEO_LAYER_ATTR_S    stLayerAttr;
     VO_CHN_ATTR_S            stChnAttr;
     VO_CHN_PARAM_S           stChnParam;
-    VO_BORDER_S              stBorder;
-    RK_U32                   u32Row, u32Column, i;
-    RK_U32                   u32WinWidth, u32WinHeight;
-    RK_U32                   u32X, u32Y;
+    [[maybe_unused]] VO_BORDER_S stBorder;
+    RK_U32 u32Row, u32Column, i;
+    RK_U32 u32WinWidth, u32WinHeight;
+    RK_U32 u32X, u32Y;
     RK_S32                   s32Ret = RK_SUCCESS;
-    RK_U32 disp_width = 1920;
-    RK_U32 disp_height = 1080;
+    [[maybe_unused]] RK_U32 disp_width = 1920;
+    [[maybe_unused]] RK_U32 disp_height = 1080;
 
     if (ctx->u32Windows <= 2)
         u32Row = 1;
@@ -1372,7 +1357,7 @@ static RK_S32 Sample_VO_MultiWindowns_Start(TEST_VO_CTX_S *ctx) {
     u32WinWidth = stLayerAttr.stDispRect.u32Width / u32Column;
     u32WinHeight = stLayerAttr.stDispRect.u32Height / u32Row;
 
-    for (i = 0; i <ctx->u32Windows; i++) {
+    for (i = 0; i < static_cast<RK_U32>(ctx->u32Windows); i++) {
         u32X = i % u32Column;
         u32Y = i / u32Column;
         stChnAttr.stRect.s32X = stLayerAttr.stDispRect.s32X + u32X * u32WinWidth;
@@ -1611,7 +1596,7 @@ static RK_VOID * Sample_VO_SendPicture_Mosaic(RK_VOID *pArg) {
     VoThreadParam *pParam = reinterpret_cast<VoThreadParam *>(pArg);
     VIDEO_FRAME_INFO_S *pstVFrame;
     RK_VOID *pMblk, *pMblk_1080P, *pMblk_1080P2, *pMblk_768P, *pMblk_480P, *pMblk_G0, *pMblk_G1, *pMblk_WATER_MAKER;
-    RK_U32 count;
+    RK_U32 count = 0;
 
     Sample_VO_CreateGFXData(1920, 1080, RK_FMT_RGBA8888, 0, &pMblk_1080P);
     Sample_VO_CreateGFXData(1920, 1080, RK_FMT_RGBA8888, 1, &pMblk_1080P2);
@@ -1709,8 +1694,8 @@ static RK_VOID Sample_VO_StopSendPicture_Mosaic(pthread_t tThreadID, VoThreadPar
 }
 
 static void Sample_VO_GetVsyncEvent(RK_VOID *pPrivateData, VO_CB_INFO_S* info) {
-    RK_S32 s32Ret = RK_SUCCESS;
-    RK_U32 *pSyncType = (RK_U32 *) pPrivateData;
+    [[maybe_unused]] RK_S32 s32Ret = RK_SUCCESS;
+    [[maybe_unused]] RK_U32 *pSyncType = (RK_U32 *) pPrivateData;
 
     if (info != NULL)
         Sample_Print("[%s] timestamp: %d %d\n", __func__, info->u32Sec, info->u32Usec);
@@ -1819,17 +1804,18 @@ static RK_S32 Sample_VO_UnRegVsyncCallback(VO_DEV VoDev) {
 static RK_S32 Sample_VO_Demo_Video_Mosaic(TEST_VO_CTX_S *ctx) {
     VO_PUB_ATTR_S            stVoPubAttr, stVoPubAttrSecond;
     VO_VIDEO_LAYER_ATTR_S    stLayerAttr, stLayerAttrSecond;
-    RK_U32                   u32DispWidth, u32DispHeight;
-    RK_U32                   u32ImageWidth, u32ImageHeight;
+    [[maybe_unused]] RK_U32 u32DispWidth = 0, u32DispHeight = 0;
+    [[maybe_unused]] RK_U32 u32ImageWidth, u32ImageHeight;
     VO_LAYER                 VoLayer, VoLayerSecond;
     VO_DEV                   VoDev, VoDevSecond;
     RK_S32                   u32Windows;
-    RK_U32                   u32Fps, i;
+    [[maybe_unused]] RK_U32 u32Fps;
+    RK_U32 i;
     pthread_t                tThreadID, tThreadID_1;
     RK_S32                   s32Ret = RK_SUCCESS;
-    VO_LAYER_MODE_E          Vo_layer_mode;
+    [[maybe_unused]] VO_LAYER_MODE_E Vo_layer_mode{};
     VoThreadParam            stThreadParam, stThreadParamSecond;
-    PIXEL_FORMAT_E           video_format;
+    PIXEL_FORMAT_E video_format{};
 
     VoDev = ctx->VoDev;
     VoDevSecond = ctx->VoDevSecond;
@@ -1951,7 +1937,6 @@ static RK_S32 Sample_VO_Demo_Video_Mosaic(TEST_VO_CTX_S *ctx) {
         RK_MPI_VO_UnBindLayer(VoLayerSecond, VoDevSecond);
     }
 
- end:
     RK_MPI_VO_UnBindLayer(VoLayer, VoDev);
     RK_MPI_VO_CloseFd();
 
@@ -1962,19 +1947,19 @@ static RK_S32 Sample_VO_Demo_UI(TEST_VO_CTX_S *ctx) {
     VO_PUB_ATTR_S            stVoPubAttr;
     VO_VIDEO_LAYER_ATTR_S    stLayerAttr;
     VIDEO_FRAME_INFO_S       *pstVFrame;
-    RK_U32                   u32DispWidth, u32DispHeight;
-    RK_U32                   u32ImgWidth, u32ImgHeight;
+    [[maybe_unused]] RK_U32 u32DispWidth = 0, u32DispHeight = 0;
+    [[maybe_unused]] RK_U32 u32ImgWidth, u32ImgHeight;
     VO_LAYER                 VoLayer;
     RK_S32                   VoDev;
-    RK_S32                   VoDev_second;
-    VO_LAYER                 VoLayer_second;
+    RK_S32 VoDev_second{};
+    VO_LAYER VoLayer_second{};
     RK_VOID *pMblk_1080P_1   = RK_NULL;
     RK_VOID *pMblk_1080P_2   = RK_NULL;
     RK_VOID *pMblk_768P_1    = RK_NULL;
     RK_VOID *pMblk_768P_2    = RK_NULL;
     RK_U32   s32Ret          = RK_SUCCESS;
     RK_S32   count           = 0;
-    PIXEL_FORMAT_E           plane_format;
+    PIXEL_FORMAT_E plane_format{};
 
     for (RK_U32 j = 0; j < VDEC_ARRAY_ELEMS(testPixelFormat); j++) {
         if (ctx->s32PixFormat == testPixelFormat[j].index) {
@@ -2106,7 +2091,6 @@ static RK_S32 Sample_VO_Demo_UI(TEST_VO_CTX_S *ctx) {
         RK_MPI_VO_DestroyGraphicsFrameBuffer(pMblk_768P_1);
         RK_MPI_VO_DestroyGraphicsFrameBuffer(pMblk_768P_2);
     }
-end:
     RK_MPI_VO_CloseFd();
 
     return s32Ret;
@@ -2115,17 +2099,17 @@ end:
 static RK_S32 Sample_VO_Resolution(TEST_VO_CTX_S *ctx) {
     VO_PUB_ATTR_S            stVoPubAttr;
     VO_VIDEO_LAYER_ATTR_S    stLayerAttr;
-    RK_U32                   u32DispWidth, u32DispHeight;
-    RK_U32                   u32ImageWidth, u32ImageHeight;
+    [[maybe_unused]] RK_U32 u32DispWidth = 0, u32DispHeight = 0;
+    [[maybe_unused]] RK_U32 u32ImageWidth, u32ImageHeight;
     VO_LAYER                 VoLayer;
     VO_DEV                   VoDev;
     RK_S32                   u32Windows;
-    RK_U32                   u32Fps, i;
+    [[maybe_unused]] RK_U32 u32Fps;
+    RK_U32 i;
     pthread_t                tThreadID;
-    RK_S32                   s32Ret = RK_SUCCESS;
-    VoThreadParam            stThreadParam;
-    PIXEL_FORMAT_E           video_format;
-    RK_U32                   test_mode;
+    VoThreadParam stThreadParam;
+    PIXEL_FORMAT_E video_format{};
+    RK_U32 test_mode{};
 
     VoDev = ctx->VoDev;
     u32Windows = ctx->u32Windows;
@@ -2204,12 +2188,12 @@ static RK_S32 Sample_VO_Demo_Alpha(TEST_VO_CTX_S *ctx) {
     RK_S32                  s32Ret = RK_SUCCESS;
     RK_U32                  u32VideoWindows;
     pthread_t               tThreadDev0;
-    PIXEL_FORMAT_E          video_format;
+    PIXEL_FORMAT_E          video_format{};
     RK_U32                  VoWbc;
     PIXEL_FORMAT_E          wbc_format;
     VO_LAYER                VoLayer;
-    VO_DEV                  VoDev;
-    RK_S32                  count;
+    VO_DEV VoDev{};
+    [[maybe_unused]] RK_S32 count{};
 
     u32VideoWindows =  ctx->u32Windows;
     for (RK_U32 j = 0; j < VDEC_ARRAY_ELEMS(testPixelFormat); j++) {
@@ -2219,7 +2203,7 @@ static RK_S32 Sample_VO_Demo_Alpha(TEST_VO_CTX_S *ctx) {
         }
     }
     /* Bind Layer */
-    VoDev == RK356X_VO_DEV_HD0;
+    VoDev = RK356X_VO_DEV_HD0;
     VoGfxLayer = VO_LAYER_ESMART0;
     VoVideoLayer = VO_LAYER_CLUSTER0;
     RK_MPI_VO_BindLayer(VoGfxLayer, VoDev, VO_LAYER_MODE_GRAPHIC);
@@ -2351,24 +2335,27 @@ static RK_S32 Sample_VO_Demo_Alpha(TEST_VO_CTX_S *ctx) {
 }
 
 static RK_S32 Sample_VO_Video_Homologous(TEST_VO_CTX_S *ctx) {
-    VO_WBC_SOURCE_S          stWbcSource;
-    VO_WBC_ATTR_S            stWbcAttr;
+    [[maybe_unused]] VO_WBC_SOURCE_S stWbcSource;
+    [[maybe_unused]] VO_WBC_ATTR_S stWbcAttr;
     RK_U32 VoWbc;
-    VIDEO_FRAME_INFO_S       *pFrame;
-    VO_PUB_ATTR_S            stVoPubAttr, stVoPubAttr_1;
-    VO_VIDEO_LAYER_ATTR_S    stLayerAttr, stLayerAttr_1;
-    RK_U32                   u32DispWidth, u32DispHeight;
-    RK_U32                   u32ImageWidth, u32ImageHeight;
+    [[maybe_unused]] VIDEO_FRAME_INFO_S *pFrame;
+    VO_PUB_ATTR_S stVoPubAttr;
+    [[maybe_unused]] VO_PUB_ATTR_S stVoPubAttr_1;
+    VO_VIDEO_LAYER_ATTR_S stLayerAttr;
+    [[maybe_unused]] VO_VIDEO_LAYER_ATTR_S stLayerAttr_1;
+    [[maybe_unused]] RK_U32 u32DispWidth = 0, u32DispHeight = 0;
+    [[maybe_unused]] RK_U32 u32ImageWidth, u32ImageHeight;
     VO_LAYER                 VoLayer;
     VO_DEV                   VoDev;
     RK_S32                   u32Windows;
-    RK_U32                   u32Fps, i;
+    [[maybe_unused]] RK_U32 u32Fps;
+    RK_U32 i;
     pthread_t                tThreadID;
     RK_S32                   s32Ret = RK_SUCCESS;
-    VO_LAYER_MODE_E          Vo_layer_mode;
+    [[maybe_unused]] VO_LAYER_MODE_E Vo_layer_mode{};
     VoThreadParam            stThreadParam;
-    PIXEL_FORMAT_E           video_format;
-    TEST_VO_CTX_S   stVoCtx;
+    PIXEL_FORMAT_E video_format{};
+    [[maybe_unused]] TEST_VO_CTX_S stVoCtx;
     PIXEL_FORMAT_E  wbc_format;
     VoDev = ctx->VoDev;
     u32Windows = ctx->u32Windows;
@@ -2625,8 +2612,6 @@ static void  mpi_vo_test_show_options(const TEST_VO_CTX_S *ctx) {
 }
 
 void init_cfg(TEST_VO_CTX_S *ctx) {
-    RK_S32 i = 0;
-
     ctx->loopCount = 10;
     ctx->u32Windows = 4;
     ctx->enIntfType = DISPLAY_TYPE_HDMI;  /* 0: HDMI0 1: EDP 3: DP 4: DP_1 5:HDMI1 */
@@ -2719,7 +2704,6 @@ void init_cfg(TEST_VO_CTX_S *ctx) {
 }
 
 int main(int argc, const char **argv) {
-    RK_S32  s32Ret;
     TEST_VO_CTX_S ctx;
 
     memset(&ctx, 0, sizeof(TEST_VO_CTX_S));

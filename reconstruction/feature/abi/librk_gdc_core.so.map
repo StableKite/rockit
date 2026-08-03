@@ -1,0 +1,18 @@
+{
+    global:
+        _ZNSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE2EE10_M_releaseEv;
+        _ZTISt11_Mutex_baseILN9__gnu_cxx12_Lock_policyE2EE;
+        _ZTISt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE2EE;
+        _ZTSSt11_Mutex_baseILN9__gnu_cxx12_Lock_policyE2EE;
+        _ZTSSt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE2EE;
+        _ZTSSt19_Sp_make_shared_tag;
+        _ZZNSt19_Sp_make_shared_tag5_S_tiEvE5__tag;
+        rk_algo_gdc_fisheye_generate_mesh;
+        rk_algo_gdc_fisheye_get_mesh_size;
+        rk_algo_gdc_fisheye_pos_query_dst_to_pano;
+        rk_algo_gdc_fisheye_pos_query_dst_to_pano_array;
+        rk_algo_gdc_fisheye_pos_query_dst_to_src;
+        rk_algo_gdc_fisheye_pos_query_dst_to_src_array;
+        rk_algo_gdc_fisheye_version;
+    local: *;
+};

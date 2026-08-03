@@ -1,55 +1,45 @@
 # README
 
-## 前言
+## Предисловие
 
-**概述**
+**Обзор**
 
-Rockchip多媒体处理平台(rockit)对外应用接口说明。
+Описание внешних прикладных интерфейсов мультимедийной платформы Rockchip (rockit).
 
 ---
 
-## 目录
+## Содержание
 
 [TOC]
 
 ---
-## Rockit对外接口说明
-Rockit对外提供TGI(TaskGraph Interface)和MPI(Media Process Interface)两套接口，用于应用程序开发，两套接口可单独使用，也可结合使用。
+## Описание внешних интерфейсов Rockit
+Rockit предоставляет два набора интерфейсов для разработки приложений: TGI (TaskGraph Interface) и MPI (Media Process Interface). Их можно использовать отдельно или совместно.
 
 ### TGI
-- 基于TGI接口可以通过配置文件方式构建应用Pipeline，详见tgi/doc/目录文档说明。
-- 适用于UVC、UAC等较为固定Pipeline应用场景。
-- 已应用于RV1109/1126 RK356X UVC、UAC类产品。
+- На основе интерфейса TGI можно строить pipeline приложения с помощью файлов конфигурации. Подробное описание приведено в документации каталога `tgi/doc/`.
+- Подходит для сценариев с относительно фиксированным pipeline, например UVC и UAC.
+- Применяется в продуктах классов UVC и UAC на RV1109/1126 и RK356X.
 
 ### MPI
 
-- MPI接口是模块化接口，包括VI/VO/VDEC/VENC/VPSS/VGS/TDE/SYS/MB/AI/AO/ADEC/AENC等模块，详见mpi/doc/目录文档说明。
-- MPI支持单模块使用，也支持多模块组合使用，可采用模块间绑定或者手动取/送流方式，灵活构建应用Pipeline。
+- MPI представляет собой модульный интерфейс, включающий модули VI/VO/VDEC/VENC/VPSS/VGS/TDE/SYS/MB/AI/AO/ADEC/AENC и другие. Подробное описание приведено в документации каталога `mpi/doc/`.
+- MPI поддерживает как отдельное использование модулей, так и их совместное использование. Pipeline приложения можно гибко строить посредством связывания модулей либо ручного получения и передачи потоков.
 
-- 已应用于RV1109/1126 IPC、RK356X NVR类产品，并在后续RK3588等新芯片上持续支持。
+- Интерфейс применяется в продуктах классов IPC на RV1109/1126 и NVR на RK356X; поддержка продолжается на новых микросхемах, включая RK3588.
 
-## Rockit对外接口特点
+## Особенности внешних интерфейсов Rockit
 
-|          | TGI                    | MPI                  |
-| -------- | ---------------------- | -------------------- |
-| 灵活性   | Pipeline构建后较为固定 | 灵活，模块可灵活拼接 |
-| 使用场景 | UVC、UAC               | NVR、IPC             |
+|                  | TGI                                       | MPI                                   |
+| ---------------- | ----------------------------------------- | ------------------------------------- |
+| Гибкость         | После построения pipeline сравнительно фиксирован | Гибкий, модули можно свободно соединять |
+| Сценарии применения | UVC, UAC                                | NVR, IPC                              |
 
-## Rockit接口编译配置
+## Настройка сборки интерфейсов Rockit
 
-SDK默认仅开启TGI接口头文件、动态库安装，可根据产品应用需求，通过修改external/rockit目录下CMakeLists.txt，将USE_ROCKIT_MPI置为ON，打开MPI接口编译安装。
+Сборка выполняется из восстановленных исходных кодов. Интерфейсы TGI и MPI включены по умолчанию; при необходимости их можно отключить параметрами `USE_ROCKIT_TGI` и `USE_ROCKIT_MPI` верхнего `CMakeLists.txt`.
 
-```c
-option(USE_ROCKIT_TGI  "enable rockit tgi" ON)
-if (${USE_ROCKIT_TGI})
-    message("Build rockit tgi")
-    add_subdirectory(tgi)
-endif()
-
-option(USE_ROCKIT_MPI  "enable rockit mpi" OFF)
-if (${USE_ROCKIT_MPI})
-    message("Build rockit mpi")
-    add_subdirectory(mpi)
-endif()
+```cmake
+option(USE_ROCKIT_TGI "enable rockit tgi" ON)
+option(USE_ROCKIT_MPI "enable rockit mpi" ON)
 ```
-

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <cstddef>
+
 #include "rk_mpi_vo.h"
 
 #ifdef __cplusplus
@@ -89,7 +91,7 @@ void TEST_VO_GetDisplaySize(RK_S32 enIntfSync, RK_U32 *s32W, RK_U32 *s32H) {
             *s32H = 2160;
             break;
         default:
-            for (RK_S32 i = 0; i < ARRAY_LENGTH(stVoTimings); i++) {
+            for (size_t i = 0; i < ARRAY_LENGTH(stVoTimings); i++) {
                 if (stVoTimings[i].enIntfSync == enIntfSync) {
                     *s32W = stVoTimings[i].u32Width;
                     *s32H = stVoTimings[i].u32Height;

@@ -91,7 +91,7 @@ static RK_U32 test_find_audio_enc_format(TEST_AENC_CTX_S *params) {
 }
 
 RK_S32 test_aenc_poll_event(RK_S32 timeoutMsec, RK_S32 fd) {
-    RK_S32 num_fds = 1;
+    constexpr RK_S32 num_fds = 1;
     struct pollfd pollFds[num_fds];
     RK_S32 ret = 0;
 
@@ -115,13 +115,13 @@ RK_S32 test_init_mpi_aenc(TEST_AENC_CTX_S *params) {
     AENC_CHN_ATTR_S stAencAttr;
     AENC_CHN AdChn = (AENC_CHN)(params->s32ChnIndex);
 
-    RK_U32 codecId = test_find_audio_enc_codec_id(params);
+    RK_S32 codecId = test_find_audio_enc_codec_id(params);
     if (codecId == -1) {
         return RK_FAILURE;
     }
 
-    RK_U32 format = test_find_audio_enc_format(params);
-    if (codecId == -1) {
+    RK_S32 format = test_find_audio_enc_format(params);
+    if (format == -1) {
         return RK_FAILURE;
     }
 
@@ -181,7 +181,7 @@ static void *send_frame_thread(void *arg) {
         stAudioFrm.u32Seq = ++count;
         stAudioFrm.bBypassMbBlk = RK_TRUE;
 
-        MB_EXT_CONFIG_S extConfig = {0};
+        MB_EXT_CONFIG_S extConfig{};
         extConfig.pFreeCB = aenc_data_free;
         extConfig.pOpaque = srcData;
         extConfig.pu8VirAddr = srcData;
@@ -215,8 +215,6 @@ static void *receive_stream_thread(void *arg) {
     AUDIO_STREAM_S pstStream;
     AENC_CHN AdChn = (AENC_CHN)(params->s32ChnIndex);
     RK_S32 eos = 0;
-    RK_S32 count = 0;
-
     if (params->dstFilePath) {
         file = fopen(params->dstFilePath, "wb+");
         if (file == RK_NULL) {
@@ -242,7 +240,6 @@ static void *receive_stream_thread(void *arg) {
                     fflush(file);
                 }
                 RK_MPI_AENC_ReleaseStream(AdChn, &pstStream);
-                count++;
             }
         } else {
             RK_LOGE("fail to get aenc frame.");

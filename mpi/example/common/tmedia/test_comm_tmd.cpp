@@ -46,19 +46,15 @@ RK_S32 TEST_COMM_CodecIDTmdToRK(RK_S32 s32Id) {
         return RK_VIDEO_ID_Unused;
 }
 
-static RK_S32 mpi_tmedia_free(void *opaque) {
-    return 0;
-}
-
-RK_S32 TEST_COMM_TmdParserOpen(const char *uri, STREAM_INFO_S *pstStreamInfo) {  
+RK_S32 TEST_COMM_TmdParserOpen(const char *, STREAM_INFO_S *) {
     return RK_FAILURE;
 }
 
-RK_S32 TEST_COMM_TmdParserRead(STREAM_INFO_S *pstStreamInfo, STREAM_DATA_S *pstStreamData) {
+RK_S32 TEST_COMM_TmdParserRead(STREAM_INFO_S *, STREAM_DATA_S *) {
     return RK_FAILURE;
 }
 
-RK_S32 TEST_COMM_TmdParserClose(STREAM_INFO_S *pstStreamInfo) {
+RK_S32 TEST_COMM_TmdParserClose(STREAM_INFO_S *) {
     return RK_SUCCESS;
 }
 

@@ -156,7 +156,7 @@ RK_S32 TEST_VPSS_ModTest(TEST_VPSS_CTX_S *ctx) {
         void *retval = RK_NULL;
         pthread_join(tids[grpIndex], &retval);
         if (retval == RK_NULL) {
-            RK_LOGE("Has error test.");
+            RK_LOGE("%s", "Has error test.");
             s32Ret = RK_FAILURE;
         }
     }
@@ -188,7 +188,6 @@ __FAILED:
 
 RK_S32 TEST_VPSS_ModInit(TEST_VPSS_CTX_S *pstCtx) {
     RK_S32           s32Ret = RK_SUCCESS;
-    MB_BLK           srcBlk = MB_INVALID_HANDLE;
     VPSS_GRP_ATTR_S stVpssGrpAttr;
     VPSS_CHN_ATTR_S stVpssChnAttr[VPSS_MAX_CHN_NUM];
 

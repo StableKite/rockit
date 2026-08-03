@@ -37,7 +37,6 @@ typedef struct test_vdec_thread_s {
 } TEST_VDEC_THREAD_S;
 
 // get pic thread info
-static TEST_VDEC_THREAD_S gGetPicThread[VDEC_MAX_CHN_NUM];
 // send stream thread info
 static TEST_VDEC_THREAD_S gSendStremThread[VDEC_MAX_CHN_NUM];
 
@@ -90,7 +89,6 @@ RK_S32 TEST_VDEC_Stop(VDEC_CHN VdecChn) {
 
 static void* TEST_VDEC_SendStreamProc(void *pArgs) {
     RK_S32 s32Ret = RK_SUCCESS;
-    RK_BOOL bReachEos = RK_FALSE;
     MB_BLK pStreamBlk = MB_INVALID_HANDLE;
     STREAM_DATA_S stStreamData;
     MB_EXT_CONFIG_S stMbExtConfig;
