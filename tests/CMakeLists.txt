@@ -1,0 +1,36 @@
+# These tests are limited source-candidate regressions, not release qualification.
+foreach(linkage IN ITEMS shared static)
+    add_executable(rockit_mpi_smoke_${linkage} mpi_contract_smoke.c)
+    target_link_libraries(rockit_mpi_smoke_${linkage} PRIVATE rockit_${linkage})
+    set_target_properties(rockit_mpi_smoke_${linkage} PROPERTIES LINKER_LANGUAGE CXX)
+    # Original vendor C headers use GNU enum extensions; retain their bytes.
+    rockit_enable_example_warnings(rockit_mpi_smoke_${linkage})
+    add_test(NAME mpi_${linkage}_valid COMMAND rockit_mpi_smoke_${linkage})
+    set_tests_properties(mpi_${linkage}_valid PROPERTIES TIMEOUT 20 LABELS "candidate;public-mpi;valid-input")
+endforeach()
+add_executable(rockit_private_runtime private_runtime_smoke.cpp)
+target_include_directories(rockit_private_runtime BEFORE PRIVATE
+    "${PROJECT_SOURCE_DIR}/reconstruction/include" "${PROJECT_SOURCE_DIR}/reconstruction/src")
+target_link_libraries(rockit_private_runtime PRIVATE rockit_static)
+rockit_enable_strict_warnings(rockit_private_runtime)
+add_test(NAME private_runtime COMMAND rockit_private_runtime)
+set_tests_properties(private_runtime PROPERTIES TIMEOUT 20 LABELS "candidate;private-api;not-vendor-abi")
+if(TARGET rt_test_comm)
+    add_executable(rockit_bmp_header_read bmp_header_read.cpp)
+    target_link_libraries(rockit_bmp_header_read PRIVATE rt_test_comm)
+    rockit_enable_strict_warnings(rockit_bmp_header_read)
+    add_test(NAME bmp_header_io COMMAND rockit_bmp_header_read)
+    set_tests_properties(bmp_header_io PROPERTIES TIMEOUT 10 LABELS "example;io")
+endif()
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND AND UNIX AND NOT APPLE AND CMAKE_NM)
+    add_test(NAME core_export_names COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/check_exports.py" --nm "${CMAKE_NM}"
+        --library "$<TARGET_FILE:rockit_shared>" --map "${PROJECT_SOURCE_DIR}/reconstruction/abi/librockit.map")
+    set_tests_properties(core_export_names PROPERTIES TIMEOUT 10 LABELS "abi-names;not-behavior")
+    if(EXISTS "${PROJECT_SOURCE_DIR}/.git")
+        add_test(NAME source_only_tip COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/check_source_only.py" "${PROJECT_SOURCE_DIR}")
+        set_tests_properties(source_only_tip PROPERTIES TIMEOUT 10 LABELS "source-integrity")
+    endif()
+endif()

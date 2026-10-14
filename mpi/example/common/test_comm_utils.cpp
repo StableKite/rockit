@@ -146,7 +146,13 @@ RKSocType TEST_COMM_GetSocType() {
     fd = fopen("/proc/device-tree/compatible", "r");
     memset(achBuf, 0, sizeof(achBuf));
     if (fd != NULL) {
-        fread(achBuf, 1, sizeof(achBuf), fd);
+        const size_t bytesRead = fread(achBuf, 1, sizeof(achBuf) - 1, fd);
+        if (bytesRead == 0) {
+            fclose(fd);
+            RK_LOGE("empty or unreadable device compatibility description.");
+            return socType;
+        }
+        achBuf[bytesRead] = '\0';
         if ((strstr(achBuf, "rockchip")) ||
             (strstr(achBuf, "Rockchip")) ||
             (strstr(achBuf, "RK30board"))) {

@@ -80,7 +80,7 @@ RK_S32 TEST_COMM_GetBmpInfo(
 
     RK_U16 bfType;
 
-    if (NULL == filename) {
+    if (NULL == filename || NULL == pBmpFileHeader || NULL == pBmpInfo) {
         printf("OSD_LoadBMP: filename=NULL\n");
         return -1;
     }
@@ -90,15 +90,21 @@ RK_S32 TEST_COMM_GetBmpInfo(
         return -1;
     }
 
-    (void)fread(&bfType, 1, sizeof(bfType), pFile);
+    if (fread(&bfType, 1, sizeof(bfType), pFile) != sizeof(bfType)) {
+        fclose(pFile);
+        return -1;
+    }
     if (bfType != 0x4d42) {
         printf("not bitmap file\n");
         fclose(pFile);
         return -1;
     }
 
-    (void)fread(pBmpFileHeader, 1, sizeof(OSD_BITMAPFILEHEADER), pFile);
-    (void)fread(pBmpInfo, 1, sizeof(OSD_BITMAPINFO), pFile);
+    if (fread(pBmpFileHeader, 1, sizeof(*pBmpFileHeader), pFile) != sizeof(*pBmpFileHeader) ||
+        fread(pBmpInfo, 1, sizeof(*pBmpInfo), pFile) != sizeof(*pBmpInfo)) {
+        fclose(pFile);
+        return -1;
+    }
     fclose(pFile);
 
     return 0;

@@ -1200,33 +1200,44 @@ static void Sample_VO_GetPictureData(VO_FRAME_INFO_S *pstFrameInfo, const char *
         u32Stride = pstFrameInfo->u32VirWidth * u32Bpp;
 
         for (RK_U32 i = 0; i < pstFrameInfo->u32Height; i++) {
-            read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData) + u32Stride * i,
-                 pstFrameInfo->u32Width * u32Bpp);
+            const size_t rowBytes = static_cast<size_t>(pstFrameInfo->u32Width) * u32Bpp;
+            if (read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData) + u32Stride * i,
+                     rowBytes) != static_cast<ssize_t>(rowBytes)) {
+                Sample_Print("incomplete picture row\n");
+                close(u32Fd);
+                return;
+            }
         }
 
         if (pstFrameInfo->enPixelFormat == RK_FMT_YUV420SP ||
                 pstFrameInfo->enPixelFormat == RK_FMT_YUV420SP_VU) {
             for (RK_U32 i = 0; i < pstFrameInfo->u32Height / 2; i++) {
-                read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData)
+                if (read(u32Fd, reinterpret_cast<RK_S8 *>(pstFrameInfo->pData)
                             + u32Stride * pstFrameInfo->u32VirHeight + i * u32Stride,
-                            pstFrameInfo->u32Width);
+                            pstFrameInfo->u32Width) != static_cast<ssize_t>(pstFrameInfo->u32Width)) {
+                    Sample_Print("incomplete chroma row\n");
+                    close(u32Fd);
+                    return;
+                }
             }
         }
     } else {
-                read(u32Fd, pstFrameInfo->pData, u32Size);
-            }
-            close(u32Fd);
+        if (read(u32Fd, pstFrameInfo->pData, u32Size) != static_cast<ssize_t>(u32Size))
+            Sample_Print("incomplete picture data\n");
+    }
+    close(u32Fd);
 }
 
 [[maybe_unused]] static void filewrite(void *buf, uint32_t size, char *file) {
-    int fd = open(file, O_WRONLY | O_CREAT);
+    int fd = open(file, O_WRONLY | O_CREAT, 0600);
 
     if (fd < 0) {
         printf("cat not open file\n");
         return;
     }
 
-    write(fd, buf, size);
+    if (write(fd, buf, size) != static_cast<ssize_t>(size))
+        printf("incomplete file write\n");
     close(fd);
 }
 

@@ -155,3 +155,8 @@ install(EXPORT RockitTargets
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Rockit
 )
 install(DIRECTORY reconstruction/feature/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+include(CTest)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

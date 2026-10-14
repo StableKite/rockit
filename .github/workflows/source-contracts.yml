@@ -1,0 +1,39 @@
+name: source-contracts
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  host-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {cc: gcc, cxx: g++, mode: Release, flags: '-D_FORTIFY_SOURCE=2'}
+          - {cc: clang, cxx: clang++, mode: Release, flags: '-D_FORTIFY_SOURCE=2'}
+          - {cc: clang, cxx: clang++, mode: Debug, flags: '-fsanitize=address,undefined -fno-omit-frame-pointer'}
+    env:
+      ASAN_OPTIONS: detect_leaks=1
+      UBSAN_OPTIONS: halt_on_error=1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Configure
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.mode }}
+          -DCMAKE_C_FLAGS="${{ matrix.flags }}" -DCMAKE_CXX_FLAGS="${{ matrix.flags }}"
+      - name: Build all libraries and enabled examples
+        run: cmake --build build --parallel 2
+      - name: Run bounded candidate regressions
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+      - name: Stage installation without system mutation
+        run: cmake --install build --prefix "$RUNNER_TEMP/rockit-stage"
+# Deliberately no vendor/hardware PASS claim: those gates require a pinned
+# original SDK, an authorized board, and an independently evaluated campaign.
