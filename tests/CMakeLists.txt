@@ -23,6 +23,11 @@ if(TARGET rt_test_comm)
     set_tests_properties(bmp_header_io PROPERTIES TIMEOUT 10 LABELS "example;io")
 endif()
 find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+    add_test(NAME mpi_record_comparator_unit
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_compare_mpi_records.py")
+    set_tests_properties(mpi_record_comparator_unit PROPERTIES TIMEOUT 10 LABELS "vendor-records;scoped;not-hardware")
+endif()
 if(Python3_Interpreter_FOUND AND UNIX AND NOT APPLE AND CMAKE_NM)
     add_test(NAME core_export_names COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/check_exports.py" --nm "${CMAKE_NM}"
