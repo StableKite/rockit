@@ -36,7 +36,7 @@ void release_mb(MB_BLK block) {
 }
 
 bool retain_mb(MB_BLK block) {
-    return block != MB_INVALID_HANDLE && RK_MPI_MB_AddUserCnt(block) > 0;
+    return block != MB_INVALID_HANDLE && RK_MPI_MB_AddUserCnt(block) == RK_SUCCESS;
 }
 
 MB_BLK frame_block(const VIDEO_FRAME_INFO_S &frame) {

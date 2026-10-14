@@ -1105,7 +1105,9 @@ extern "C" ROCKIT_API RK_S32 RK_MPI_MB_AddUserCnt(MB_BLK handle) {
         return RK_ERR_MB_NULL_PTR;
     if (block->refs.load(std::memory_order_acquire) <= 0)
         return RK_ERR_MB_UNEXIST;
-    return block->refs.fetch_add(1, std::memory_order_acq_rel) + 1;
+    // Vendor valid-handle contract returns status, not the new reference count.
+    block->refs.fetch_add(1, std::memory_order_acq_rel);
+    return RK_SUCCESS;
 }
 
 extern "C" ROCKIT_API RK_S32 RK_MPI_MB_SetModPoolConfig(MB_UID_E, const MB_CONFIG_S *) {

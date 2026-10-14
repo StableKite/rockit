@@ -315,7 +315,7 @@ void release_mb(MB_BLK block) {
 }
 
 bool retain_mb(MB_BLK block) {
-    return block && RK_MPI_MB_AddUserCnt(block) > 0;
+    return block && RK_MPI_MB_AddUserCnt(block) == RK_SUCCESS;
 }
 
 void flush_vdec_pending(VdecChannelState &channel) {

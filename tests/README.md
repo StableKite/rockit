@@ -25,6 +25,9 @@ ledger and recovery handoff for every remaining gate.
 
 I69 fixed checked reads in three example sources after an actual GCC13
 AArch64 `-Werror=unused-result` failure (baseline retained in evidence).
-The library core, original public headers and export maps are unchanged.
+A subsequent vendor-first valid MB probe established AddUserCnt status=0 with
+count=2. The core return and all four internal retain callers were corrected
+together; shared/static regression checks assert both status and count.
+Original public headers and export maps are unchanged.
 Fortified GCC/Clang and Clang ASan+UBSan builds exercise the suite in CI.
 Local/board results and hosted CI results are separate evidence scopes.

@@ -697,7 +697,7 @@ RECT_S tde_rect(const TDE_RECT_S &rect) {
     return {rect.s32Xpos, rect.s32Ypos, rect.u32Width, rect.u32Height};
 }
 bool retain_mb(MB_BLK b) {
-    return b != MB_INVALID_HANDLE && RK_MPI_MB_AddUserCnt(b) > 0;
+    return b != MB_INVALID_HANDLE && RK_MPI_MB_AddUserCnt(b) == RK_SUCCESS;
 }
 void release_mb(MB_BLK b) {
     if (b != MB_INVALID_HANDLE)

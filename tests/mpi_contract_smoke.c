@@ -15,8 +15,8 @@ int main(void) {
     memset(p,0x5a,4096); int bytes_ok=1;for(unsigned i=0;i<4096;++i)if(p[i]!=0x5a)bytes_ok=0;
     RK_S32 before=RK_MPI_MB_InquireUserCnt(block); RK_S32 added=RK_MPI_MB_AddUserCnt(block);
     printf("mb_size=%llu bytes_ok=%d before=%d add_result=%d",(unsigned long long)RK_MPI_MB_GetSize(block),bytes_ok,before,added);
-    printf(" after=%d\n",RK_MPI_MB_InquireUserCnt(block));
+    RK_S32 after=RK_MPI_MB_InquireUserCnt(block); printf(" after=%d\n",after);
     RK_S32 release1=RK_MPI_MB_ReleaseMB(block),release2=RK_MPI_MB_ReleaseMB(block); RK_S32 fini=RK_MPI_SYS_Exit();
     printf("release1=%d release2=%d exit_rc=%d\n",release1,release2,fini);
-    return (!bytes_ok||cal!=RK_SUCCESS||release1!=RK_SUCCESS||release2!=RK_SUCCESS||fini!=RK_SUCCESS)?5:0;
+    return (!bytes_ok||before!=1||added!=RK_SUCCESS||after!=2||cal!=RK_SUCCESS||release1!=RK_SUCCESS||release2!=RK_SUCCESS||fini!=RK_SUCCESS)?5:0;
 }

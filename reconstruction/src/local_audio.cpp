@@ -30,7 +30,7 @@ template <typename T> void clear_value(T *v) {
         std::memset(v, 0, sizeof(T));
 }
 bool retain_mb(MB_BLK b) {
-    return b != MB_INVALID_HANDLE && RK_MPI_MB_AddUserCnt(b) > 0;
+    return b != MB_INVALID_HANDLE && RK_MPI_MB_AddUserCnt(b) == RK_SUCCESS;
 }
 void release_mb(MB_BLK b) {
     if (b != MB_INVALID_HANDLE)
